@@ -10,7 +10,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String user;
+    private String username;
     private String password;
     private boolean active;
 
@@ -19,8 +19,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    public User(String user, String password, boolean active, Set<Role> roles) {
-        this.user = user;
+    public User(String username, String password, boolean active, Set<Role> roles) {
+        this.username = username;
         this.password = password;
         this.active = active;
         this.roles = roles;
@@ -38,12 +38,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUsername(String user) {
+        this.username = user;
     }
 
     public String getPassword() {
