@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Simple Tweeter Site</title>
 </head>
 <body>
 <#nested >
