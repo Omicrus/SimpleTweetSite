@@ -41,7 +41,8 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         if (!ObjectUtils.isEmpty(user.getEmail())) {
-            String message = String.format("Hello, %s! \n" + "Welcome to Simple Tweeter Site. Please visit next link: " +
+            String message = String.format("Hello, %s! \n" +
+                            "Welcome to Simple Tweeter Site. Please visit next link: " +
                             "http://localhost:8080/activate/%s",
                     user.getUsername(),
                     user.getActivationCode());
