@@ -53,7 +53,6 @@ public class UserController {
     public String getProfile(Model model, @AuthenticationPrincipal User user) {
         model.addAttribute("username", user.getUsername());
         model.addAttribute("password", user.getPassword());
-
         return "profile";
     }
 
