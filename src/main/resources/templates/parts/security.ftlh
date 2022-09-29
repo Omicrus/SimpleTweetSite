@@ -2,8 +2,8 @@
 
 <!-- Boolean variable initialization to security context-->
 <#assign
-    known = Session.SPRING_SECURITY_CONTEXT??
-    >
+known = Session.SPRING_SECURITY_CONTEXT??
+>
 
 
 <#if known>
@@ -12,12 +12,14 @@
     user = Session.SPRING_SECURITY_CONTEXT.authentication.principal
     name = user.getUsername()
     isAdmin = user.isAdmin()
+    currentUserId = user.getId()
     >
 
-    <#else>
+<#else>
     <!-- Session doesn't exist -->
-        <#assign
-        name = "unknown"
-        isAdmin = false
-        >
+    <#assign
+    name = "unknown"
+    isAdmin = false
+    currentUserId = -1
+    >
 </#if>
