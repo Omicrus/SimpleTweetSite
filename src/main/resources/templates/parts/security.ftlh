@@ -7,7 +7,7 @@ known = Session.SPRING_SECURITY_CONTEXT??
 
 
 <#if known>
-    <!-- If session exist (Signed) --- we get the authorized user  -->
+    <!-- If session exist (Signed) - we get the authorized user  -->
     <#assign
     user = Session.SPRING_SECURITY_CONTEXT.authentication.principal
     name = user.getUsername()
