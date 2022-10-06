@@ -2,7 +2,9 @@ package org.example.simpletweetsite.controller;
 
 import org.example.simpletweetsite.domain.Message;
 import org.example.simpletweetsite.domain.User;
+import org.example.simpletweetsite.domain.dto.MessageDto;
 import org.example.simpletweetsite.repositories.MessageRepository;
+import org.example.simpletweetsite.service.MessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,11 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.io.File;
@@ -27,15 +29,18 @@ import java.util.Set;
 import java.util.UUID;
 
 @Controller
-public class MainController {
+public class MessageController {
 
     private final MessageRepository messageRepository;
+
+    private final MessageService messageService;
 
     @Value("${upload.path}")
     private String uploadPath;
 
-    public MainController(MessageRepository messageRepository) {
+    public MessageController(MessageRepository messageRepository, MessageService messageService) {
         this.messageRepository = messageRepository;
+        this.messageService = messageService;
     }
 
     @GetMapping("/")
@@ -45,17 +50,13 @@ public class MainController {
 
     @GetMapping("/main")
     public String main(
+            @AuthenticationPrincipal User user,
             @RequestParam(required = false, defaultValue = "") String filter,
             Model model,
-            @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<Message> page;
+        Page<MessageDto> page = messageService.messageList(user, filter, pageable);
 
-        if (filter != null && !filter.isEmpty()) {
-            page = messageRepository.findByTag(filter, pageable);
-        } else {
-            page = messageRepository.findAll(pageable);
-        }
         model.addAttribute("page", page);
         model.addAttribute("url", "/main");
         model.addAttribute("filter", filter);
@@ -68,7 +69,9 @@ public class MainController {
             @Valid Message message,
             BindingResult bindingResult,
             Model model,
-            @RequestParam("file") MultipartFile file) throws IOException {
+            @RequestParam("file") MultipartFile file,
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) throws IOException {
 
         message.setAuthor(user);
         if (bindingResult.hasErrors()) {
@@ -81,7 +84,9 @@ public class MainController {
             model.addAttribute("message", null);
             messageRepository.save(message);
         }
-        model.addAttribute("messages", messageRepository.findAll());
+        model.addAttribute("url", "/main");
+        Page<MessageDto> page = messageService.messageList(user, "", pageable);
+        model.addAttribute("page", page);
         return "main";
     }
 
@@ -102,22 +107,24 @@ public class MainController {
         }
     }
 
-    @GetMapping("/user-messages/{user}")
+    @GetMapping("/user-messages/{author}")
     public String userMessages(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable User user,
+            @PathVariable User author,
             @RequestParam(required = false) Message message,
-            Model model) {
+            Model model,
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Set<Message> messages = user.getMessages();
+        Page<MessageDto> page = messageService.messageListForUser(currentUser, author, pageable);
 
-        model.addAttribute("userChannel", user);
-        model.addAttribute("subscriptionsCount", user.getSubscription().size());
-        model.addAttribute("subscribersCount",  user.getSubscribers().size());
-        model.addAttribute("isSubscriber",  user.getSubscribers().contains(currentUser));
-        model.addAttribute("messages", messages);
+        model.addAttribute("userChannel", author);
+        model.addAttribute("subscriptionsCount", author.getSubscription().size());
+        model.addAttribute("subscribersCount", author.getSubscribers().size());
+        model.addAttribute("isSubscriber", author.getSubscribers().contains(currentUser));
+        model.addAttribute("page", page);
         model.addAttribute("message", message);
-        model.addAttribute("isCurrentUser", currentUser.equals(user));
+        model.addAttribute("isCurrentUser", currentUser.equals(author));
+        model.addAttribute("url", "/user-messagesList/" + author.getId());
 
         return "userMessages";
     }
@@ -141,5 +148,28 @@ public class MainController {
             messageRepository.save(message);
         }
         return "redirect:/user-messages/" + user;
+    }
+
+    @GetMapping("/messages/{message}/like")
+    public String like(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Message message,
+            RedirectAttributes redirectAttributes,
+            @RequestHeader(required = false) String referer
+    ) {
+        Set<User> likes = message.getLikes();
+
+        if (likes.contains(currentUser)) {
+            likes.remove(currentUser);
+        } else {
+            likes.add(currentUser);
+        }
+
+        UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+
+        components.getQueryParams().entrySet().
+                forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
+
+        return "redirect:" + components.getPath();
     }
 }

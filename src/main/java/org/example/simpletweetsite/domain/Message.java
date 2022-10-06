@@ -1,11 +1,13 @@
 package org.example.simpletweetsite.domain;
 
 
+import org.example.simpletweetsite.domain.util.MessageHelper;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity // This tells Hibernate to make a table out of this class
@@ -27,6 +29,13 @@ public class Message {
     private User author;
 
     private String filename;
+
+    @ManyToMany
+    @JoinTable(
+            name = "message_likes",
+            joinColumns = { @JoinColumn(name = "message_id")},
+            inverseJoinColumns = {@JoinColumn( name = "user_id")})
+    private Set<User> likes = new HashSet<>();
 
     public Message() {
     }
@@ -54,7 +63,7 @@ public class Message {
     }
 
     public String getAuthorName() {
-        return author != null ? author.getUsername() : "<none>";
+        return MessageHelper.getAuthorName(author);
     }
 
     public Long getId() {
@@ -79,5 +88,13 @@ public class Message {
 
     public void setTag(String email) {
         this.tag = email;
+    }
+
+    public Set<User> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<User> likes) {
+        this.likes = likes;
     }
 }

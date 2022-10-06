@@ -6,7 +6,7 @@
             <div class="col-sm-5">
                 <input type="text" name="username" class="form-control ${(usernameError??)?string('is-invalid','')}"
                        value="<#if user??>${user.username}</#if>"
-                       placeholder="User name" />
+                       placeholder="User name"/>
                 <#if usernameError??>
                     <div class="invalid-feedback">
                         ${usernameError}
@@ -18,7 +18,7 @@
             <label class="col-sm-2 col-form-label"> Password: </label>
             <div class="col-sm-5">
                 <input type="password" name="password" class="form-control ${(passwordError??)?string('is-invalid','')}"
-                       placeholder="Password" />
+                       placeholder="Password"/>
                 <#if passwordError??>
                     <div class="invalid-feedback">
                         ${passwordError}
@@ -33,7 +33,7 @@
                 <div class="col-sm-5">
                     <input type="password" name="password2"
                            class="form-control ${(password2Error??)?string('is-invalid','')}"
-                           placeholder="Retype password" />
+                           placeholder="Retype password"/>
                     <#if password2Error??>
                         <div class="invalid-feedback">
                             ${password2Error}
@@ -46,7 +46,7 @@
                 <div class="col-sm-5">
                     <input type="email" name="email" class="form-control ${(emailError??)?string('is-invalid','')}"
                            value="<#if user??>${user.email}</#if>"
-                           placeholder="example@gmail.com" />
+                           placeholder="example@gmail.com"/>
                     <#if emailError??>
                         <div class="invalid-feedback">
                             ${emailError}
@@ -63,18 +63,30 @@
                 </#if>
             </div>
         </#if>
-        <input type="hidden" name="_csrf" value="${_csrf.token}" />
+        <input type="hidden" name="_csrf" value="${_csrf.token}"/>
         <#if !isRegisterForm>
             <a href="/registration">Add new User</a>
         </#if>
-        <button type="submit" class="btn btn-primary"><#if isRegisterForm>Sign up<#else>Sign in</#if></button>
+        <button type="submit" class="btn btn-primary">
+            <#if isRegisterForm>
+                Sign up
+            <#else>
+                Sign in
+            </#if>
+        </button>
     </form>
 </#macro>
 
 <!--logout macro-->
-<#macro logout>
+<#macro logout >
     <form action="/logout" method="post">
         <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-        <button type="submit" class="btn btn-primary"><#if user??>Sign Out<#else>Sign in</#if></button>
+        <button type="submit" class="btn btn-primary">
+            <#if user??>
+                Sign Out
+            <#else>
+                Sign in
+            </#if>
+        </button>
     </form>
 </#macro>

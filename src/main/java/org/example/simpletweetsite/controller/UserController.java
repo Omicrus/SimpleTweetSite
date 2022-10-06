@@ -13,7 +13,6 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
-
 public class UserController {
 
     private final UserService userService;
@@ -50,8 +49,9 @@ public class UserController {
 
 
     @GetMapping("profile")
-    public String getProfile(Model model,
-                             @AuthenticationPrincipal User user) {
+    public String getProfile(
+            @AuthenticationPrincipal User user,
+            Model model) {
         model.addAttribute("username", user.getUsername());
         model.addAttribute("password", user.getPassword());
         return "profile";
@@ -76,6 +76,7 @@ public class UserController {
         userService.subscribe(currentUser, user);
         return "redirect:/user-messages/" + user.getId();
     }
+
     @GetMapping("/unsubscribe/{user}")
     public String unsubscribe(
             @AuthenticationPrincipal User currentUser,
@@ -90,13 +91,13 @@ public class UserController {
             @PathVariable User user,
             @PathVariable String type,
             Model model
-    ){
+    ) {
         model.addAttribute("type", type);
         model.addAttribute("userChannel", user);
 
-        if ("subscription".equals(type)){
+        if ("subscription".equals(type)) {
             model.addAttribute("users", user.getSubscription());
-        }else {
+        } else {
             model.addAttribute("users", user.getSubscribers());
         }
         return "subscription";
