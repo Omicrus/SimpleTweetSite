@@ -133,10 +133,11 @@ public class MessageController {
     public String updateMessage(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long user,
-            @RequestParam Message message,
-            @RequestParam String text,
-            @RequestParam String tag,
+            @RequestParam("text") String text,
+            @RequestParam("tag") String tag,
+            @RequestParam("id") Message message,
             @RequestParam("file") MultipartFile file) throws IOException {
+
         if (message.getAuthor().equals(currentUser)) {
             if (!ObjectUtils.isEmpty(text)) {
                 message.setText(text);
